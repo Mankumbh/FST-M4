@@ -1,0 +1,38 @@
+ hdfs dfs -ls
+Found 7 items
+-rw-r--r--   1 root supergroup         22 2022-12-15 06:25 file01.txt
+drwxr-xr-x   - root supergroup          0 2021-08-23 10:44 input
+drwxr-xr-x   - root supergroup          0 2022-11-17 06:28 manisha
+drwxr-xr-x   - root supergroup          0 2022-12-15 06:29 results
+-rw-r--r--   1 root supergroup        859 2022-12-15 06:54 sales.csv
+drwxr-xr-x   - root supergroup          0 2022-11-17 07:56 salesOutput
+drwxr-xr-x   - root supergroup          0 2022-11-17 06:52 textData
+root@f0d615c7adf1:/# hdfs dfs -mkdir /user/manisha-m4-project/
+root@f0d615c7adf1:/# hdfs dfs -put ./episodeIV_dialouges.txt /user/manisha-m4-project/
+root@f0d615c7adf1:/# hdfs dfs -put ./episodeV_dialouges.txt /user/manisha-m4-project/
+root@f0d615c7adf1:/# hdfs dfs -put ./episodeVI_dialouges.txt /user/manisha-m4-project/
+root@f0d615c7adf1:/# hdfs dfs -ls /user/manisha-m4-project/
+Found 3 items
+-rw-r--r--   1 root supergroup      67671 2022-12-15 13:40 /user/manisha-m4-project/episodeIV_dialouges.txt
+-rw-r--r--   1 root supergroup      43658 2022-12-15 13:40 /user/manisha-m4-project/episodeVI_dialouges.txt
+-rw-r--r--   1 root supergroup      49891 2022-12-15 13:40 /user/manisha-m4-project/episodeV_dialouges.txt
+root@f0d615c7adf1:/# vim episodeIV_dialouges.pig
+
+root@f0d615c7adf1:/# cat episodeIV_dialouges.pig
+inputFile = LOAD 'hdfs:///user/manisha-m4-project/episodeIV_dialouges.txt' USING PigStorage('\t') AS ( name:chararray,line:chararray);
+inputFileRanked = RANK inputFile;
+onlyDialouges = FILTER inputFileRanked BY ( rank_inputFile > 2);
+groupByName = GROUP onlyDialouges BY name;
+names =  FOREACH groupByName GENERATE $0 as name, COUNT($1) as no_of_lines;
+nameOrdered = ORDER names BY no_of_lines DESC;
+STORE nameOrdered INTO 'hdfs:///user/manisha-m4-project/outputs/episodeIVoutput' USING PigStorage('\t');
+root@f0d615c7adf1:/#
+
+STORE nameOrdered INTO 'hdfs:///user/manisha-m4-project/outputs/episodeIVoutput' USING PigStorage('\t');
+root@f0d615c7adf1:/# ls
+EmpData.csv  dev                      etc         lib64         pig_1671087443202.log  salesCSV.pig  txtFile.txt
+bin          episodeIV_dialouges.pig  export      media         proc                   sbin          usr
+boot         episodeIV_dialouges.txt  file01.txt  metastore_db  root                   srv           var
+csvFile.csv  episodeVI_dialouges.txt  home        mnt           run                    sys           wordcount.pig
+derby.log    episodeV_dialouges.txt   lib         opt           sales.csv              tmp
+root@f0d615c7adf1:/#

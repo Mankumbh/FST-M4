@@ -1,0 +1,9 @@
+root@f0d615c7adf1:/# vi episodeV_dialouges.pig
+root@f0d615c7adf1:/# cat episodeV_dialouges.pig
+inputFile = LOAD 'hdfs:///user/alam_m4_project/episodeV_dialouges.txt' USING PigStorage('\t') AS ( name:chararray,line:chararray);
+inputFile = LOAD 'hdfs:///user/manisha-m4-project/episodeV_dialouges.txt' USING PigStorage('\t') AS (name:chararray,line:chararray);
+groupByName = GROUP inputFile By name;
+names = FOREACH groupByName GENERATE $0 as name, COUNT($1) as no_Of_Lines;
+nameOrdered = ORDER names BY no_Of_Lines DESC;
+STORE nameOrdered INTO 'hdfs:///user/manisha-m4-project/outputs/episodeVoutput' USING PigStorage('\t');
+root@f0d615c7adf1:/#
